@@ -23,6 +23,7 @@ public class file_browse extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("Sachin");
         setContentView(R.layout.activity_file_browse);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -31,6 +32,7 @@ public class file_browse extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                System.out.println("Clicked");
                 loadFolderList("");
             }
         });
@@ -71,7 +73,7 @@ public class file_browse extends AppCompatActivity {
             mPath.mkdirs();
         }
         catch(SecurityException e) {
-
+            e.printStackTrace();
         }
         if(mPath.exists()) {
             if (mPath.isDirectory()) {
@@ -99,6 +101,7 @@ public class file_browse extends AppCompatActivity {
             case DIALOG_LOAD_FILE:
                 builder.setTitle("Choose your file");
                 if(mFileList == null) {
+                    System.out.println("Null");
                     dialog = builder.create();
                     return dialog;
                 }
@@ -128,9 +131,9 @@ public class file_browse extends AppCompatActivity {
                                                 int which) {
 
                             }
-                        });
-
-
+                        }
+                );
+                break;
         }
         dialog = builder.show();
         return dialog;

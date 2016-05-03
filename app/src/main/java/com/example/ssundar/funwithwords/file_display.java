@@ -48,15 +48,21 @@ public class file_display extends Activity {
         }
         String line = null;
         String lines = "";
+        String lineSplit[];
+        String printLines = "";
         try {
             while ((line = br.readLine()) != null) {
                 lines += line + "\n";
+                lineSplit = line.split(",", 3);
+                printLines += lineSplit[0] + "\t-\t" + lineSplit[2].substring(0, lineSplit[2].length() - 1) + "\n";
+                System.out.println(printLines);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         TextView myText = new TextView(this);
-        myText.setText(lines);
+        myText.setTextSize((float) 22.0);
+        myText.setText(printLines);
         text = lines;
 
         lView.addView(myText);
@@ -81,8 +87,6 @@ public class file_display extends Activity {
             }
         }
         );
-        tts.setLanguage(Locale.US);
-        tts.speak("Text to say aloud", TextToSpeech.QUEUE_ADD, null);
     }
 
     private void ConvertTextToSpeech() {
