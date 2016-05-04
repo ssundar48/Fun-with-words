@@ -1,16 +1,24 @@
 package com.example.ssundar.funwithwords;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Scroller;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -26,21 +34,34 @@ import java.util.Locale;
 /**
  * Created by ssundar on 5/3/2016.
  */
-public class file_display extends Activity {
+public class file_display extends Activity{
 
+    Button start;
+    EditText number;
     private String rootDir = "/sdcard/";
     private String text = null;
+    private int stop = 0;
     TextToSpeech tts;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_display);
+        start = (Button)this.findViewById(R.id.button);
+        number = (EditText)this.findViewById(R.id.wordNumber);
         Intent intent = getIntent();
         String message = intent.getStringExtra("txtFile");
         LinearLayout lView = new LinearLayout(this);
         File file = new File(rootDir + "/" + message);
         BufferedReader br = null;
+
         try {
             br = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
@@ -50,52 +71,55 @@ public class file_display extends Activity {
         String lines = "";
         String lineSplit[];
         String printLines = "";
+        int lineNumber = 0;
         try {
             while ((line = br.readLine()) != null) {
-                lines += line + "\n";
-                lineSplit = line.split(",", 3);
-                printLines += lineSplit[0] + "\t-\t" + lineSplit[2].substring(0, lineSplit[2].length() - 1) + "\n";
-                System.out.println(printLines);
+                lineNumber++;
+                lineSplit = line.split(",", 2);
+                lines += lineSplit[0] + ",means," + lineSplit[1] + "\n";
+                printLines += lineNumber + ". " + lineSplit[0] + "\t-\t" + lineSplit[1] + "\n";
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TextView myText = new TextView(this);
+        TextView myText = (TextView) findViewById(R.id.myText);
         myText.setTextSize((float) 22.0);
+        myText.setMovementMethod(new ScrollingMovementMethod());
         myText.setText(printLines);
         text = lines;
 
-        lView.addView(myText);
-        setContentView(lView);
-        System.out.println("Done");
-
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-
             @Override
             public void onInit(int status) {
-                // TODO Auto-generated method stub
-                if (status == TextToSpeech.SUCCESS) {
-                    int result = tts.setLanguage(Locale.US);
-                    if (result == TextToSpeech.LANG_MISSING_DATA ||
-                            result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.e("error", "This Language is not supported");
-                    } else {
-                        ConvertTextToSpeech();
-                    }
-                } else
-                    Log.e("error", "Initilization Failed!");
+                if (status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.UK);
+                }
             }
-        }
-        );
+        });
+
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String textSplit[] = text.split("\n");
+                int wordNumber = 1;
+                try {
+                    wordNumber = new Integer(number.getText().toString()).intValue();
+                } catch (Exception e) {
+                }
+                System.out.println(wordNumber);
+                for (int i = wordNumber - 1;i < textSplit.length && i >= 0;i++) {
+                    tts.speak(textSplit[i], TextToSpeech.QUEUE_ADD, null);
+                }
+            }
+        });
     }
 
-    private void ConvertTextToSpeech() {
-        // TODO Auto-generated method stub
-        if(text==null||"".equals(text))
-        {
-            text = "Content not available";
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }else
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+    @Override
+    protected void onPause() {
+        if(tts != null){
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onPause();
     }
 }

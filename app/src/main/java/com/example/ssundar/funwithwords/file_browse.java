@@ -23,7 +23,6 @@ public class file_browse extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("Sachin");
         setContentView(R.layout.activity_file_browse);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -32,7 +31,6 @@ public class file_browse extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("Clicked");
                 loadFolderList("");
             }
         });
@@ -77,7 +75,15 @@ public class file_browse extends AppCompatActivity {
         }
         if(mPath.exists()) {
             if (mPath.isDirectory()) {
-                mFileList = mPath.list();
+                mFileList = mPath.list(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String filename) {
+                        if (filename.contains(".txt")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
             }
         }
         else {
@@ -101,11 +107,9 @@ public class file_browse extends AppCompatActivity {
             case DIALOG_LOAD_FILE:
                 builder.setTitle("Choose your file");
                 if(mFileList == null) {
-                    System.out.println("Null");
                     dialog = builder.create();
                     return dialog;
                 }
-                System.out.println("Files");
                 builder.setItems(mFileList, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         mChosenFile = mFileList[which];
@@ -125,11 +129,9 @@ public class file_browse extends AppCompatActivity {
                 builder.setTitle("File not valid!!");
                 builder.setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
-
                             @Override
                             public void onClick(DialogInterface dialog,
                                                 int which) {
-
                             }
                         }
                 );
@@ -139,4 +141,3 @@ public class file_browse extends AppCompatActivity {
         return dialog;
     }
 }
-
